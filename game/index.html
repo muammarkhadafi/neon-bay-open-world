@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Bay — Open-World Crime Game</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" style="display:none">
+  <div id="top-left">
+    <div id="health-bar"><div id="health-fill"></div><span id="health-text">HP 100</span></div>
+    <div id="money">$120</div>
+    <div id="stars">☆☆☆☆☆</div>
+  </div>
+  <div id="top-right">
+    <canvas id="minimap" width="180" height="180"></canvas>
+  </div>
+  <div id="bottom-left">
+    <div id="mission-label">No mission</div>
+    <div id="objective"></div>
+    <div id="clock" style="display:none">0:00</div>
+  </div>
+  <div id="bottom-right">
+    <div id="speed">On foot</div>
+    <div id="ammo">Ammo 12/12</div>
+  </div>
+  <div id="message"></div>
+  <div id="hud-buttons">
+    <button id="sound-btn">Sound: On</button>
+    <button id="pause-btn">Pause</button>
+  </div>
+</div>
+
+<div id="start-screen" class="overlay">
+  <div class="panel">
+    <h1>NEON BAY</h1>
+    <p class="tagline">A sun-soaked open-world crime game</p>
+    <p id="story-text"></p>
+    <div class="controls">
+      <p><b>WASD</b> move / drive &nbsp; <b>Shift</b> run &nbsp; <b>Space</b> jump / handbrake</p>
+      <p><b>E</b> enter / exit car &nbsp; <b>M</b> start mission at the gold marker</p>
+      <p><b>Click / J</b> shoot &nbsp; <b>F</b> punch &nbsp; <b>R</b> reload &nbsp; <b>Esc</b> pause</p>
+      <p>Drag the mouse to look around. Stealing cars and hurting people raises your wanted level — the Bay City Police will chase you.</p>
+    </div>
+    <button id="start-btn" class="big">Start Game</button>
+    <button id="continue-btn" class="big" style="display:none">Continue Saved Game</button>
+    <p class="fine">Neon Bay is an original game. No real city, person or brand is depicted.</p>
+  </div>
+</div>
+
+<div id="pause-screen" class="overlay" style="display:none">
+  <div class="panel">
+    <h1>Paused</h1>
+    <button id="resume-btn" class="big">Resume</button>
+    <button id="save-btn" class="big">Save Game</button>
+    <button id="load-btn" class="big">Load Game</button>
+    <button id="sound-btn2" class="big">Sound: On</button>
+    <button id="quit-btn" class="big">Quit to Menu</button>
+  </div>
+</div>
+
+<div id="busted-screen" class="overlay" style="display:none">
+  <div class="panel">
+    <h1>BUSTED</h1>
+    <p id="busted-fine"></p>
+    <button id="restart-btn" class="big">Back on the Streets</button>
+    <button id="quit-btn2" class="big">Quit to Menu</button>
+  </div>
+</div>
+
+<div id="wasted-screen" class="overlay" style="display:none">
+  <div class="panel">
+    <h1>WASTED</h1>
+    <p id="wasted-lost"></p>
+    <button id="restart-btn2" class="big">Back on the Streets</button>
+  </div>
+</div>
+
+<div id="error"></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
