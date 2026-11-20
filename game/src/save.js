@@ -1,11 +1,12 @@
-// Neon Bay — save / load via localStorage. Stores money, health, mission
-// progress, player position and wanted level. Never stores keys or secrets.
+// Neon Bay — saving and loading through localStorage. It keeps money,
+// health, mission progress, the player's spot and the wanted level. It never
+// stores keys or secrets.
 
 import { SAVE_KEY } from './config.js';
 
 export function saveGame(state) {
   try {
-    const data = {
+    const snapshot = {
       version: 1,
       money: state.money,
       health: state.health,
@@ -15,9 +16,9 @@ export function saveGame(state) {
       wanted: state.wanted,
       savedAt: Date.now(),
     };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
     return true;
-  } catch (e) {
+  } catch (err) {
     return false;
   }
 }
@@ -26,14 +27,14 @@ export function loadGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw);
-    if (!data || data.version !== 1) return null;
-    return data;
-  } catch (e) {
+    const snapshot = JSON.parse(raw);
+    if (!snapshot || snapshot.version !== 1) return null;
+    return snapshot;
+  } catch (err) {
     return null;
   }
 }
 
 export function hasSave() {
-  try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; }
+  try { return !!localStorage.getItem(SAVE_KEY); } catch (err) { return false; }
 }

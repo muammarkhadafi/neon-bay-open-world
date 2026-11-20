@@ -1,5 +1,5 @@
-// Neon Bay — story missions: three jobs from Sol Reyes, each with steps,
-// a timer, a target marker, and complete / fail states.
+// Neon Bay — the story missions: three jobs from Sol Reyes, each with its
+// steps, a timer, a target marker, and complete / fail states.
 
 import * as THREE from 'three';
 import { MISSIONS, PLACES } from './config.js';
@@ -13,7 +13,7 @@ export class MissionManager {
     this.traffic = traffic;
     this.sound = sound;
     this.cb = callbacks; // {onEvent(text), onPay(amount), onComplete(id), onFail(reason)}
-    this.index = 0; // next mission to run
+    this.index = 0; // the next mission to run
     this.active = null; // {def, step, timeLeft, ...}
     this.markerMesh = null;
     this.courierCar = null;
@@ -35,7 +35,7 @@ export class MissionManager {
   get currentDef() { return MISSIONS[this.index] || null; }
   get done() { return this.index >= MISSIONS.length; }
 
-  // Gold start marker floats over the hideout when a mission is available.
+  // A gold start marker floats over the hideout while a mission is open.
   idleMarkerPos() {
     return this.done ? null : PLACES.hideout;
   }
@@ -130,7 +130,7 @@ export class MissionManager {
     this.passenger = null;
   }
 
-  // Called every frame with the player's state.
+  // Runs every frame with the player's state.
   update(dt, player, playerCar, wanted) {
     if (this.markerMesh.visible) {
       this.markerMesh.position.y = 6 + Math.sin(performance.now() * 0.003) * 0.6;
@@ -142,7 +142,7 @@ export class MissionManager {
     if (m.timeLeft <= 0) { this.failMission('Time ran out.'); return; }
     const step = this.stepDef();
     if (!step) return;
-    // Use the car's position while driving — the on-foot mesh stays behind.
+    // While driving, use the car's spot — the on-foot mesh stays behind.
     const px = playerCar ? playerCar.pos.x : player.pos.x;
     const pz = playerCar ? playerCar.pos.z : player.pos.z;
     const inCar = !!playerCar;
@@ -179,27 +179,27 @@ export class MissionManager {
       }
     } else if (step.type === 'chase') {
       if (this.courierCar) {
-        // Courier flees from the player.
+        // The courier runs away from the player.
         const dx = this.courierCar.pos.x - px;
         const dz = this.courierCar.pos.z - pz;
         const d = Math.hypot(dx, dz);
         if (d < 30) {
           this.courierCar.targetNode = { x: this.courierCar.pos.x + dx * 2, z: this.courierCar.pos.z + dz * 2 };
         }
-        // Rammed hard / slow enough = stopped.
+        // Rammed hard or slowed right down counts as stopped.
         if (d < 4.5) this.courierCar.slowTimer = 1.5;
         if (d < 4.5 && Math.abs(this.courierCar.speed) < 3) {
           this.dropPackage();
           this.advanceStep();
         }
-        // Or the player is on foot right next to it and it is slow.
+        // Or the player is on foot right beside it while it crawls.
         if (!inCar && d < 3.5 && Math.abs(this.courierCar.speed) < 3) {
           this.dropPackage();
           this.advanceStep();
         }
       }
     }
-    // Keep the beacon on the moving target.
+    // Keep the beacon on a moving target.
     const pos = this.targetPos();
     if (pos && step.type !== 'escape') {
       this.world.setBeacon(pos.x, pos.z, true);

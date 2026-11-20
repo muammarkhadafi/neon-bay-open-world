@@ -1,20 +1,21 @@
-// Neon Bay — shared constants, palette, city layout and mission data.
-// Every number the game uses lives here so tuning is one file.
+// Neon Bay — one home for every number the game runs on: the city grid,
+// the palette, the player and car feel, the wanted rules, the story and the
+// mission scripts, and the named places on the map.
 
 export const CITY = {
-  blocks: 8, // blocks per side
-  blockSize: 36, // building block side (m)
-  roadWidth: 14, // road width (m)
+  blocks: 8, // blocks along each side
+  blockSize: 36, // a building block's side, in metres
+  roadWidth: 14, // road width, in metres
   get pitch() { return this.blockSize + this.roadWidth; },
   get halfSpan() { return (this.blocks * this.pitch + this.roadWidth) / 2; },
 };
 
-// Road centre lines: streets run at x = -halfSpan + roadWidth/2 + i*pitch
+// Street centre lines: streets sit at x = -halfSpan + roadWidth/2 + i*pitch.
 export function roadCenters() {
-  const centers = [];
-  const start = -CITY.halfSpan + CITY.roadWidth / 2;
-  for (let i = 0; i <= CITY.blocks; i++) centers.push(start + i * CITY.pitch);
-  return centers;
+  const lines = [];
+  const first = -CITY.halfSpan + CITY.roadWidth / 2;
+  for (let i = 0; i <= CITY.blocks; i++) lines.push(first + i * CITY.pitch);
+  return lines;
 }
 
 export const PALETTE = {
@@ -57,12 +58,12 @@ export const CAR = {
 
 export const WANTED = {
   maxStars: 5,
-  decaySeconds: 14, // clean time per star lost
+  decaySeconds: 14, // clean seconds before one star fades
   policeCarCap: [0, 1, 2, 3, 4, 5],
   copCap: [0, 1, 2, 3, 4, 6],
 };
 
-// Story + missions. All names are original.
+// Story and missions. Every name here is original.
 export const STORY = {
   hero: 'Rio Vale',
   fixer: 'Marisol "Sol" Reyes',
@@ -112,7 +113,7 @@ export const MISSIONS = [
   },
 ];
 
-// Named places on the map (x, z). The city spans roughly -205..205.
+// Named spots on the map (x, z). The city runs roughly -205 to 205.
 export const PLACES = {
   hideout: { x: -170, z: 160, label: 'Hideout — Sol\'s Garage' },
   pickup: { x: 60, z: 190, label: 'Marina Steps' },
@@ -121,6 +122,10 @@ export const PLACES = {
   garage: { x: -170, z: -60, label: 'Palm Row Garage' },
   courier: { x: 120, z: 120, label: 'Courier route' },
   package: { x: 0, z: 0, label: 'Package' },
+};
+
+export const SHOOTING = {
+  magSize: 12, reserveAmmo: 96, damage: 34, range: 80, cooldown: 0.18,
 };
 
 export const SAVE_KEY = 'neonbay-save-v1';

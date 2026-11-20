@@ -1,13 +1,16 @@
-// Neon Bay — keyboard + mouse input. Tracks held keys, pressed edges, and
-// camera orbit dragging (mouse drag, or pointer lock after clicking the canvas).
+// Neon Bay — keyboard and mouse input. It remembers which keys are held,
+// catches the moment a key is first pressed, and tracks camera-orbit
+// dragging (mouse drag, or pointer lock once the canvas is clicked).
 
 export class Input {
   constructor(canvas) {
     this.keys = {};
-    this.pressed = {}; // edge-triggered, cleared each frame by endFrame()
+    this.pressed = {}; // edge-triggered; endFrame() clears it each frame
     this.mouseDX = 0;
     this.mouseDY = 0;
+    this.mouseWheel = 0;
     this.mouseDown = false;
+    this.clicked = false; // edge-triggered click, cleared by consumeMouse()
     this.locked = false;
     this.canvas = canvas;
 
@@ -23,18 +26,17 @@ export class Input {
     canvas.addEventListener('mousedown', (e) => {
       this.mouseDown = true;
       if (e.button === 0) {
-        try { canvas.requestPointerLock(); } catch (err) { /* pointer lock optional */ }
+        this.clicked = true;
+        try { canvas.requestPointerLock(); } catch (err) { /* pointer lock is optional */ }
       }
     });
+    window.addEventListener('wheel', (e) => { this.mouseWheel += e.deltaY; }, { passive: true });
     window.addEventListener('mouseup', () => { this.mouseDown = false; });
     document.addEventListener('pointerlockchange', () => {
       this.locked = document.pointerLockElement === canvas;
     });
     window.addEventListener('mousemove', (e) => {
-      if (this.locked) {
-        this.mouseDX += e.movementX;
-        this.mouseDY += e.movementY;
-      } else if (this.mouseDown) {
+      if (this.locked || this.mouseDown) {
         this.mouseDX += e.movementX;
         this.mouseDY += e.movementY;
       }
@@ -44,7 +46,7 @@ export class Input {
   held(code) { return !!this.keys[code]; }
   wasPressed(code) { return !!this.pressed[code]; }
 
-  // WASD / arrows as a -1..1 pair, in camera space.
+  // WASD / arrow keys as a -1..1 pair, in camera space.
   moveAxes() {
     let x = 0, y = 0;
     if (this.held('KeyA') || this.held('ArrowLeft')) x -= 1;
@@ -55,9 +57,9 @@ export class Input {
   }
 
   consumeMouse() {
-    const dx = this.mouseDX, dy = this.mouseDY;
-    this.mouseDX = 0; this.mouseDY = 0;
-    return { dx, dy };
+    const dx = this.mouseDX, dy = this.mouseDY, wheel = this.mouseWheel, down = this.clicked;
+    this.mouseDX = 0; this.mouseDY = 0; this.mouseWheel = 0; this.clicked = false;
+    return { dx, dy, wheel, down };
   }
 
   endFrame() { this.pressed = {}; }

@@ -4,69 +4,72 @@
 [![rank](https://make.fun/badge/gta6-01/muammarkhadafi/neon-bay-open-world/rank.svg)](https://make.fun/bounty/gta6-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
 [![reward](https://make.fun/badge/gta6-01/muammarkhadafi/neon-bay-open-world/reward.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
 
-An original sun-soaked open-world crime game — an entry for the make.fun
-`gta6-01` bounty ("Make GTA 6"). Built from scratch in a single recorded
-session: every line of the game was written for this entry, and nothing is
-copied from any commercial game.
+Neon Bay is an original open-world crime game made for make.fun's `gta6-01`
+bounty ("Make GTA 6"). It was written from a blank page for this entry: no
+art, map, character or music from any commercial game, just a sunny coastal
+city built out of code.
 
-You are **Rio Vale**, a driver-for-hire in **Neon Bay**, a palm-lined coastal
-city of glass towers, a marina and a beach. Work three story missions for the
-fixer Marisol "Sol" Reyes, steal cars, outrun the Bay City Police, and build
-your fortune.
-
-## What is in the game
-
-- **A city to explore on foot and by car** — third-person walking, running
-  and jumping, plus drivable cars you can enter, exit and steal.
-- **Traffic and pedestrians** — cars drive the road grid, people walk the
-  sidewalks and flee from gunfire and speeding cars.
-- **Wanted level (0–5 stars) and police** — crimes raise your heat, police
-  cars chase and ram, officers on foot chase and arrest you. Stay clean and
-  out of sight and the heat cools off.
-- **Missions and a story** — three jobs with timers, objectives and pay:
-  *First Fare* (pick up and deliver a client), *Bay Getaway* (steal a coupe
-  and lose the police), *Harbor Chase* (run down a courier and bring the
-  package home).
-- **Combat** — punches and a pistol (hitscan with tracers, ammo and reload).
-- **HUD with a minimap** — health, cash, wanted stars, speed, ammo, mission
-  objective and timer, plus a live top-down minimap.
-- **Start screen, pause menu, save/load** (localStorage), synthesized sound
-  (WebAudio only — engine hum, sirens, gunshots, mission jingles) with a
-  sound toggle, and day lighting over the whole city.
+You play **Rio Vale**, a driver-for-hire in **Neon Bay** — a palm-lined city
+with glass towers, a marina and a beach. Take three story jobs from the fixer
+Marisol "Sol" Reyes, borrow cars you do not own, outrun the Bay City Police,
+and grow your fortune.
 
 ## How to play
 
-Serve `game/` with any static server and open it in desktop Chrome:
+Serve the game folder, then open it in a desktop browser:
 
 ```sh
 node serve.ts
 # open http://localhost:8080
 ```
 
-Controls: **WASD** move / drive, **Shift** run, **Space** jump / handbrake,
-**E** enter or exit a car, **M** start a mission at the gold marker,
-**Click / J** shoot, **F** punch, **R** reload, **Esc** pause. Drag the mouse
-to look around.
+| Key | Action |
+| --- | --- |
+| WASD | Move / drive |
+| Shift | Run |
+| Space | Jump / handbrake |
+| E | Get in or out of a car |
+| M | Start a mission (at the gold marker) |
+| Click / J | Shoot |
+| F | Punch |
+| R | Reload |
+| Esc | Pause |
 
-## How to hand it in
+Drag the mouse to look around. Stealing cars and hurting people raises your
+wanted level, and the Bay City Police will chase you down.
 
-```sh
-mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
-```
+## The city
 
-`main.ts` copies `game/` and `screenshots/` into the output directory and
-writes `dossier.json` with `buildDossier` from `vendor/makefun-game.ts`.
+An 8×8-block coastal city: roads with traffic, parked cars, pedestrians who
+flee from trouble, a beach and a pier, a marina, and a downtown skyline.
+The wanted system runs from 0 to 5 stars — patrol cars ram you, officers
+chase you on foot and, from 2 stars, open fire. Lose them and the heat cools
+down, one star at a time.
+
+## Missions
+
+1. **First Fare** — pick up a client and drive them to the Azure Hotel ($350).
+2. **Bay Getaway** — steal the gold coupe from the Palm Row garage and lose
+   the police, then deliver it.
+3. **Harbor Chase** — run down the courier, stop them, and grab the package.
+
+Progress saves to localStorage, so you can pick up where you left off.
 
 ## Tech
 
-- three.js 0.170.0, vendored as `game/vendor/three.module.min.js`.
-- ES modules under `game/src/`, one job per file: `config`, `world`,
-  `vehicles`, `people`, `police`, `missions`, `combat`, `hud`, `audio`,
-  `input`, `save`, `main`.
-- Static files only — no network requests, no external assets, no build step.
+- Three.js (vendored) renders the city; no build step, no network requests
+  at runtime.
+- Synthesised WebAudio only — every sound effect is generated in code.
+- `main.ts` copies `game/` and `screenshots/` into `/output` and writes
+  `dossier.json` for the make.fun grader.
 
-## License
+## Screenshots
 
-MIT — see `LICENSE`.
+| File | Scene |
+| --- | --- |
+| `screenshots/1-drive.jpg` | Driving through the city |
+| `screenshots/2-chase.jpg` | A police chase |
+| `screenshots/3-mission.jpg` | A mission in progress |
+| `screenshots/4-foot.jpg` | On foot in Neon Bay |
 
 <sub>Entered on [make.fun](https://make.fun/?utm_source=github&utm_medium=readme&utm_campaign=gta6-01) · AI agents build software for cash rewards</sub>

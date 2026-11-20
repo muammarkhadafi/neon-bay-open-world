@@ -1,5 +1,5 @@
-// Neon Bay — wanted level and the Bay City Police: patrol cars that chase
-// and ram, and officers on foot who chase and arrest.
+// Neon Bay — the wanted level and the Bay City Police: patrol cars that
+// chase and ram, and officers on foot who chase and arrest.
 
 import * as THREE from 'three';
 import { Car, buildCarMesh } from './vehicles.js';
@@ -19,7 +19,7 @@ export class WantedSystem {
     this.lastCrimeAt = now;
   }
 
-  // Decays one star per clean interval while no police are near.
+  // One star fades per clean interval, while no police are close by.
   update(dt, policeNear) {
     if (this.stars === 0) return;
     if (policeNear) { this.cleanTimer = 0; return; }
@@ -48,7 +48,7 @@ export class PoliceManager {
   update(dt, playerPos, playerInCar, onArrest, onRam) {
     const stars = this.wanted.stars;
     this.sound.setSiren(stars > 0 && this.cars.length > 0);
-    // Spawn to the caps.
+    // Spawn up to the caps.
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
       this.spawnTimer = 2.5;
@@ -57,23 +57,21 @@ export class PoliceManager {
       while (this.cars.length < wantCars) this.spawnCar(playerPos);
       while (this.cops.length < wantCops) this.spawnCop(playerPos);
     }
-    // Despawn extras when wanted falls.
+    // Shed the extras when the heat falls.
     while (this.cars.length > WANTED.policeCarCap[stars]) this.cars.pop().remove();
     while (this.cops.length > (playerInCar ? 0 : WANTED.copCap[stars])) {
       const c = this.cops.pop();
       this.scene.remove(c.mesh);
     }
-    // Chase cars: steer straight at the player, ram on contact.
+    // Chase cars: steer straight at the player and ram on contact.
     for (const car of this.cars) {
       const dx = playerPos.x - car.pos.x;
       const dz = playerPos.z - car.pos.z;
       const dist = Math.hypot(dx, dz);
       if (dist > 320) {
-        // Teleport closer so the chase never dies of distance.
-        const node = this.world.randomNode();
+        // Pull it closer so the chase never dies of distance.
         car.pos.x = playerPos.x + (Math.random() - 0.5) * 90;
         car.pos.z = playerPos.z + (Math.random() - 0.5) * 90;
-        void node;
       }
       const want = Math.atan2(dx, dz);
       let diff = want - car.heading;
@@ -88,7 +86,7 @@ export class PoliceManager {
       car.pos.z = fixed.z;
       car.mesh.rotation.y = car.heading;
       if (dist < 3.2 && onRam) onRam(car);
-      // Flashing light bar.
+      // The flashing light bar.
       this.sirenFlash += dt;
       const lights = car.mesh.userData.lights;
       if (lights) {
@@ -97,7 +95,7 @@ export class PoliceManager {
         lights.blue.material.color.setHex(on ? 0x112244 : 0x2266ff);
       }
     }
-    // Cops on foot chase and arrest.
+    // Officers on foot chase and arrest.
     for (const cop of this.cops) {
       const dx = playerPos.x - cop.mesh.position.x;
       const dz = playerPos.z - cop.mesh.position.z;
@@ -122,7 +120,6 @@ export class PoliceManager {
         onArrest(cop);
       }
     }
-    void PALETTE;
   }
 
   spawnCar(playerPos) {
@@ -134,7 +131,7 @@ export class PoliceManager {
 
   spawnCop(playerPos) {
     const mesh = buildHumanMesh(0x1a1a2e, 0x1a1a2e, 0xd9a066);
-    // Police cap.
+    // A police cap.
     const cap = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.12, 0.44), new THREE.MeshLambertMaterial({ color: 0x0a1a3a }));
     cap.position.y = 1.95;
     mesh.add(cap);
@@ -157,7 +154,8 @@ export class PoliceManager {
     return false;
   }
 
-  // Officers open fire at wanted 2+ when the player is on foot and in range.
+  // Officers fire at wanted 2 and above, when the player is on foot and in
+  // range.
   copGunfire(playerPos, dt, onShot) {
     if (this.wanted.stars < 2) return;
     this._fireTimer = (this._fireTimer || 0) - dt;

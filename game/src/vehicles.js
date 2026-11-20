@@ -1,10 +1,10 @@
-// Neon Bay — cars: the player's drivable vehicles, parked cars, and the
-// traffic system that drives NPC cars around the road graph.
+// Neon Bay — cars: the cars the player drives, the parked cars, and the
+// traffic system that moves NPC cars around the road graph.
 
 import * as THREE from 'three';
 import { CAR, PALETTE } from './config.js';
 
-let carId = 0;
+let nextCarId = 0;
 
 export function buildCarMesh(color, isPolice) {
   const group = new THREE.Group();
@@ -26,7 +26,7 @@ export function buildCarMesh(color, isPolice) {
     group.add(w);
     wheels.push(w);
   }
-  // Headlights + taillights.
+  // Headlights and taillights.
   const headMat = new THREE.MeshBasicMaterial({ color: 0xfff6c0 });
   for (const hx of [-0.6, 0.6]) {
     const h = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.18, 0.1), headMat);
@@ -57,7 +57,7 @@ export function buildCarMesh(color, isPolice) {
 
 export class Car {
   constructor(scene, world, x, z, heading, color, opts = {}) {
-    this.id = ++carId;
+    this.id = ++nextCarId;
     this.scene = scene;
     this.world = world;
     this.isPolice = !!opts.police;
@@ -78,7 +78,7 @@ export class Car {
     // Traffic AI state.
     this.targetNode = null;
     this.cruiseSpeed = 7 + Math.random() * 4;
-    this.slowTimer = 0; // ramming / damage slows a traffic car briefly
+    this.slowTimer = 0; // being rammed or damaged slows a traffic car a while
   }
 
   get pos() { return this.mesh.position; }
@@ -88,7 +88,7 @@ export class Car {
     this.dead = true;
   }
 
-  // Player driving: throttle -1..1, steer -1..1.
+  // The player driving: throttle -1..1, steer -1..1.
   drive(throttle, steer, dt) {
     const maxF = CAR.maxSpeed, maxR = CAR.maxReverse;
     if (throttle > 0) this.speed += CAR.accel * throttle * dt;
@@ -114,12 +114,13 @@ export class Car {
     this.pos.x = fixed.x;
     this.pos.z = fixed.z;
     this.mesh.rotation.y = this.heading;
-    // Wheel spin.
+    // Spin the wheels.
     for (const w of this.mesh.userData.wheels) w.rotation.x += this.speed * dt * 1.6;
     return hitWall;
   }
 
-  // NPC traffic: follow the road graph to a target intersection, then pick another.
+  // NPC traffic: drive the road graph toward a target intersection, then
+  // pick another one.
   updateTraffic(dt) {
     if (!this.targetNode) this.targetNode = this.world.randomNode();
     const dx = this.targetNode.x - this.pos.x;
@@ -147,7 +148,7 @@ export class Car {
     this.pos.z = fixed.z;
     this.mesh.rotation.y = this.heading;
     for (const w of this.mesh.userData.wheels) w.rotation.x += this.speed * dt * 1.6;
-    // Stuck detection: if barely moved, reroute.
+    // Stuck check: if it barely moved, send it somewhere else.
     const moved = Math.hypot(this.pos.x - this.lastX, this.pos.z - this.lastZ);
     if (moved < 0.05) this.stuckTimer += dt; else this.stuckTimer = 0;
     this.lastX = this.pos.x; this.lastZ = this.pos.z;
@@ -174,7 +175,7 @@ export class TrafficManager {
       car.targetNode = this.world.randomNode();
       this.cars.push(car);
     }
-    // Parked cars: ten of them, lined up on the road shoulder so they sit
+    // Parked cars: ten of them, lined up along the road shoulder so they sit
     // parallel to the street instead of jutting into the buildings.
     const PARKED_COUNT = 10;
     const ROAD_EDGE = 5.5;
@@ -205,7 +206,7 @@ export class TrafficManager {
     }
   }
 
-  // Simple car-car separation so traffic does not pile through itself.
+  // Simple car-car separation so traffic does not drive through itself.
   separate() {
     const list = this.cars.filter((c) => !c.dead);
     for (let i = 0; i < list.length; i++) {

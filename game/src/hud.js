@@ -1,5 +1,5 @@
-// Neon Bay — HUD: DOM bars/text plus a canvas minimap (top-down view of
-// the city: player, cars, police, mission marker, hideout).
+// Neon Bay — the HUD: DOM bars and text, plus a canvas minimap (a top-down
+// look at the city: the player, cars, police, the mission marker, the hideout).
 
 export class HUD {
   constructor() {
@@ -49,7 +49,7 @@ export class HUD {
     const ctx = this.mapCtx;
     if (!ctx) return;
     const S = this.map.width;
-    const span = 460; // world units shown across the map
+    const span = 460; // world units across the map
     const toMap = (x, z) => [((x + span / 2) / span) * S, ((z + span / 2) / span) * S];
     ctx.clearRect(0, 0, S, S);
     ctx.fillStyle = '#16202b';
@@ -63,7 +63,7 @@ export class HUD {
       ctx.beginPath(); ctx.moveTo(mx, 0); ctx.lineTo(mx, S); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, mz); ctx.lineTo(S, mz); ctx.stroke();
     }
-    // Beach / ocean.
+    // Beach and ocean.
     ctx.fillStyle = '#1e7fa8';
     ctx.fillRect(0, S - 14, S, 14);
     ctx.fillStyle = '#e8d29a';

@@ -1,5 +1,6 @@
-// Neon Bay — synthesized sound. No audio files: every sound is built with
-// WebAudio oscillators and filtered noise, so the game stays fully offline.
+// Neon Bay — sound made from scratch. There are no audio files: each
+// effect is built from WebAudio oscillators and filtered noise, so the game
+// never needs the network.
 
 export class SoundEngine {
   constructor() {
@@ -15,7 +16,7 @@ export class SoundEngine {
     this.musicStep = 0;
   }
 
-  // Must be called from a user gesture at least once.
+  // Call this from a user gesture at least once.
   unlock() {
     if (this.ctx) {
       if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -29,7 +30,7 @@ export class SoundEngine {
       this.master.gain.value = 0.5;
       this.master.connect(this.ctx.destination);
       this.startMusic();
-    } catch (e) {
+    } catch (err) {
       this.ctx = null;
     }
   }
@@ -41,23 +42,23 @@ export class SoundEngine {
 
   tone(freq, dur, type, vol, slideTo) {
     if (!this.ctx || !this.enabled) return;
-    const t = this.ctx.currentTime;
+    const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
+    const gain = this.ctx.createGain();
     osc.type = type || 'sine';
-    osc.frequency.setValueAtTime(freq, t);
-    if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
-    g.gain.setValueAtTime(vol || 0.2, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    osc.connect(g);
-    g.connect(this.master);
-    osc.start(t);
-    osc.stop(t + dur + 0.02);
+    osc.frequency.setValueAtTime(freq, now);
+    if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, now + dur);
+    gain.gain.setValueAtTime(vol || 0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    osc.connect(gain);
+    gain.connect(this.master);
+    osc.start(now);
+    osc.stop(now + dur + 0.02);
   }
 
   noise(dur, vol, filterFreq) {
     if (!this.ctx || !this.enabled) return;
-    const t = this.ctx.currentTime;
+    const now = this.ctx.currentTime;
     const len = Math.max(1, Math.floor(this.ctx.sampleRate * dur));
     const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
     const data = buf.getChannelData(0);
@@ -67,13 +68,13 @@ export class SoundEngine {
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = filterFreq || 1200;
-    const g = this.ctx.createGain();
-    g.gain.setValueAtTime(vol || 0.3, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(vol || 0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
     src.connect(filter);
-    filter.connect(g);
-    g.connect(this.master);
-    src.start(t);
+    filter.connect(gain);
+    gain.connect(this.master);
+    src.start(now);
   }
 
   click() { this.tone(700, 0.06, 'square', 0.08); }
@@ -87,7 +88,7 @@ export class SoundEngine {
   sirenBlip() { this.tone(880, 0.12, 'square', 0.06, 660); }
   busted() { [440, 415, 392, 370].forEach((f, i) => setTimeout(() => this.tone(f, 0.3, 'sawtooth', 0.14), i * 200)); }
 
-  // Continuous engine hum; speed 0..1 sets pitch and volume.
+  // A steady engine hum; speed 0..1 drives its pitch and loudness.
   setEngine(speed, on) {
     if (!this.ctx) return;
     if (!on || speed <= 0.02) {
@@ -111,7 +112,7 @@ export class SoundEngine {
     this.engineGain.gain.setTargetAtTime(0.03 + speed * 0.05, this.ctx.currentTime, 0.1);
   }
 
-  // Two-tone police siren while wanted.
+  // A two-tone police siren while the player is wanted.
   setSiren(on) {
     if (!this.ctx) return;
     if (!on) {
@@ -127,7 +128,7 @@ export class SoundEngine {
     }, 300);
   }
 
-  // A lazy synthwave-ish bass line for the menu and driving.
+  // A laid-back synthwave-style bass line for the menu and the drive.
   startMusic() {
     if (!this.ctx || this.musicTimer) return;
     const bass = [55, 55, 65.4, 49, 55, 55, 73.4, 65.4];

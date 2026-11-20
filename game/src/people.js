@@ -1,5 +1,5 @@
-// Neon Bay — people: the player character on foot and the pedestrians who
-// walk the sidewalks (and flee from trouble).
+// Neon Bay — people: the player on foot, and the pedestrians who stroll
+// the pavements (and run from trouble).
 
 import * as THREE from 'three';
 import { PLAYER } from './config.js';
@@ -78,7 +78,7 @@ export class Player {
       this.mesh.userData.armL.rotation.x *= 0.8;
       this.mesh.userData.armR.rotation.x *= 0.8;
     }
-    // Jump / gravity.
+    // Jump and gravity.
     this.vy -= PLAYER.gravity * dt;
     this.y += this.vy * dt;
     if (this.y <= 0) { this.y = 0; this.vy = 0; this.onGround = true; }
@@ -164,7 +164,7 @@ export class PedestrianManager {
     }
   }
 
-  // Nearest pedestrian within range (for melee / interaction).
+  // The nearest pedestrian in range (for melee and interaction).
   nearest(x, z, maxDist) {
     let best = null, bd = maxDist;
     for (const p of this.peds) {

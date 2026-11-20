@@ -1,5 +1,6 @@
-// Neon Bay — combat: pistol (hitscan with tracer + muzzle flash) and melee
-// punches. Tasteful: hits spark, targets fall, no gore.
+// Neon Bay — fighting: the pistol (hitscan, with a tracer and a muzzle
+// flash) and bare-handed punches. Kept tame: hits throw sparks, the target
+// goes down, no gore.
 
 import * as THREE from 'three';
 
@@ -15,8 +16,8 @@ export class Combat {
     this.shootCooldown = 0;
     this.tracer = null;
     this.muzzle = null;
-    const tracerMat = new THREE.MeshBasicMaterial({ color: 0xffe066 });
-    this.tracer = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 1), tracerMat);
+    const beamMat = new THREE.MeshBasicMaterial({ color: 0xffe066 });
+    this.tracer = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 1), beamMat);
     this.tracer.visible = false;
     scene.add(this.tracer);
     this.muzzle = new THREE.Mesh(
@@ -53,8 +54,9 @@ export class Combat {
     return false;
   }
 
-  // Hitscan shot from `from` along `dir`. Returns the first hit target or null.
-  // targets: [{pos: Vector3, radius, kind, ref}] — kind 'ped' | 'cop' | 'car'.
+  // A hitscan shot fired from `from` along `dir`. Gives back the first thing
+  // hit, or null. targets look like [{pos: Vector3, radius, kind, ref}],
+  // with kind 'ped', 'cop' or 'car'.
   shoot(from, dir, targets) {
     if (this.shootCooldown > 0 || this.reloadTimer > 0) return null;
     if (this.ammo <= 0) { this.reload(); return null; }
@@ -71,7 +73,7 @@ export class Combat {
       if (perp < (t.radius || 1.2)) { best = t; bestT = along; }
     }
     const end = from.clone().addScaledVector(dir, best ? bestT : range);
-    // Tracer + muzzle flash.
+    // Tracer beam and muzzle flash.
     const mid = from.clone().add(end).multiplyScalar(0.5);
     this.tracer.position.copy(mid);
     this.tracer.lookAt(end);
@@ -83,7 +85,8 @@ export class Combat {
     return best;
   }
 
-  // Melee punch in front of the player. Returns the first target hit or null.
+  // A melee punch straight ahead of the player. Gives back the first target
+  // hit, or null.
   punch(from, heading, targets) {
     if (this.punchCooldown > 0) return null;
     this.punchCooldown = 0.45;

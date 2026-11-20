@@ -1,11 +1,11 @@
-// Neon Bay — the city itself: roads, sidewalks, buildings, palms, beach,
-// ocean, marina and props. Also owns collision (building AABBs) and the road
-// graph that traffic, police and missions drive on.
+// Neon Bay — the city itself: roads, pavements, buildings, palms, beach,
+// ocean, marina and props. It also owns collision (building boxes) and the
+// road graph that traffic, police and missions drive on.
 
 import * as THREE from 'three';
 import { CITY, PALETTE, roadCenters } from './config.js';
 
-function makeWindowTexture() {
+function buildWindowTexture() {
   const c = document.createElement('canvas');
   c.width = 64; c.height = 128;
   const g = c.getContext('2d');
@@ -22,13 +22,13 @@ function makeWindowTexture() {
   return tex;
 }
 
-function makeRoadTexture() {
+function buildRoadTexture() {
   const c = document.createElement('canvas');
   c.width = 128; c.height = 128;
   const g = c.getContext('2d');
   g.fillStyle = '#33363d';
   g.fillRect(0, 0, 128, 128);
-  // Subtle asphalt speckle only — no stripes.
+  // Only a faint asphalt speckle — no stripes here.
   for (let i = 0; i < 500; i++) {
     g.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.12)';
     g.fillRect(Math.random() * 128, Math.random() * 128, 2, 2);
@@ -46,7 +46,7 @@ export class World {
     this.buildings = []; // {minX, maxX, minZ, maxZ, height, mesh}
     this.roadCenters = roadCenters();
     this.ocean = null;
-    this.beacon = null; // floating mission marker mesh
+    this.beacon = null; // the floating mission marker mesh
     this.build();
   }
 
@@ -69,8 +69,8 @@ export class World {
     ground.position.set(0, -0.05, 40);
     scene.add(ground);
 
-    // Roads: dark strips both directions + centre dashes.
-    const roadTex = makeRoadTexture();
+    // Roads: dark strips in both directions, plus centre dashes.
+    const roadTex = buildRoadTexture();
     const roadMat = new THREE.MeshLambertMaterial({ map: roadTex });
     const walkMat = new THREE.MeshLambertMaterial({ color: PALETTE.sidewalk });
     const lineMat = new THREE.MeshBasicMaterial({ color: PALETTE.roadLine });
@@ -85,7 +85,7 @@ export class World {
         alongX.position.set(0, y, c);
         scene.add(alongX);
       }
-      // Yellow centre line down each road.
+      // A yellow centre line down each road.
       const lineZ = new THREE.Mesh(new THREE.PlaneGeometry(0.4, span * 2), lineMat);
       lineZ.rotation.x = -Math.PI / 2;
       lineZ.position.set(c, 0.03, 0);
@@ -97,8 +97,8 @@ export class World {
     }
     roadTex.repeat.set(1, span / 8);
 
-    // Buildings: one per block, varied heights and colours, lit windows.
-    const winTex = makeWindowTexture();
+    // Buildings: one per block, in varied heights and colours, lit windows.
+    const winTex = buildWindowTexture();
     const blockCenters = [];
     for (let i = 0; i < CITY.blocks; i++) {
       blockCenters.push(-span + CITY.roadWidth + CITY.blockSize / 2 + i * CITY.pitch);
@@ -114,7 +114,7 @@ export class World {
         const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
         mesh.position.set(bx, h / 2, bz);
         scene.add(mesh);
-        // Window skin: a slightly larger box with the window texture on top.
+        // Window skin: a box just a touch larger, wearing the window texture.
         const skin = new THREE.Mesh(
           new THREE.BoxGeometry(w + 0.15, h * 0.92, d + 0.15),
           new THREE.MeshBasicMaterial({ map: winTex, transparent: true, opacity: 0.55 }),
@@ -133,8 +133,8 @@ export class World {
       }
     }
 
-    // Paved plaza slabs under each block + corner bushes, so block interiors
-    // read as city plaza instead of bare lawn.
+    // Paved plaza slabs under each block, with corner bushes, so the inside
+    // of a block reads as a city plaza rather than bare lawn.
     const plazaMat = new THREE.MeshLambertMaterial({ color: 0xb9b3a4 });
     const bushMat = new THREE.MeshLambertMaterial({ color: 0x3f7d33 });
     for (const bx of blockCenters) {
@@ -151,7 +151,7 @@ export class World {
       }
     }
 
-    // Downtown towers near the centre for a skyline.
+    // Downtown towers near the centre, for a skyline.
     const towerMat = new THREE.MeshLambertMaterial({ color: 0x4a6fa5, emissive: 0x0a1a2a });
     for (const [tx, tz, th] of [[-25, -25, 78], [25, 25, 92], [-25, 25, 64], [25, -25, 70]]) {
       const tower = new THREE.Mesh(new THREE.BoxGeometry(18, th, 18), towerMat);
@@ -191,7 +191,7 @@ export class World {
           leaf.rotation.x = -Math.sin(l * 1.26) * 0.9;
           scene.add(leaf);
         }
-        // Lamp on the opposite side.
+        // Lamp across the road.
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 6, 6), lampMat);
         pole.position.set(c - CITY.roadWidth / 2 - 3.5, 3, pz + 25);
         scene.add(pole);
@@ -204,7 +204,7 @@ export class World {
   }
 
   addBeach(scene, span) {
-    // Sand strip + animated ocean south of the city (positive z).
+    // A sand strip and a moving ocean south of the city (positive z).
     const sand = new THREE.Mesh(
       new THREE.PlaneGeometry(span * 2 + 260, 70),
       new THREE.MeshLambertMaterial({ color: PALETTE.sand }),
@@ -233,7 +233,7 @@ export class World {
   }
 
   addMarina(scene, span) {
-    // Pier jutting into the ocean + a few moored boats.
+    // A pier reaching into the ocean, with a few moored boats.
     const pier = new THREE.Mesh(
       new THREE.BoxGeometry(10, 1, 60),
       new THREE.MeshLambertMaterial({ color: 0x8a6b4f }),
@@ -253,7 +253,7 @@ export class World {
   }
 
   addBeacon() {
-    // Golden floating marker column used for mission objectives.
+    // A golden floating marker column for mission objectives.
     const geo = new THREE.CylinderGeometry(1.6, 1.6, 40, 12, 1, true);
     const mat = new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
     this.beacon = new THREE.Mesh(geo, mat);
@@ -289,9 +289,10 @@ export class World {
     }
   }
 
-  // ---- collision / road helpers ----
+  // ---- collision and road helpers ----
 
-  // Circle (x,z,r) vs building AABBs: push out, return corrected position.
+  // A circle (x, z, r) against the building boxes: push it out and hand
+  // back the corrected position.
   collideCircle(x, z, r) {
     for (const b of this.buildings) {
       const cx = Math.max(b.minX, Math.min(x, b.maxX));
@@ -304,7 +305,7 @@ export class World {
           x = cx + (dx / d) * r;
           z = cz + (dz / d) * r;
         } else {
-          // Centre inside the box: push out along the smallest axis.
+          // Centre inside the box: shove it out along the shortest side.
           const pushL = x - b.minX + r, pushR = b.maxX - x + r;
           const pushU = z - b.minZ + r, pushD = b.maxZ - z + r;
           const m = Math.min(pushL, pushR, pushU, pushD);
@@ -338,7 +339,7 @@ export class World {
     return best;
   }
 
-  // Random intersection node for spawning traffic / police.
+  // A random intersection node, for spawning traffic and police.
   randomNode() {
     const c = this.roadCenters[Math.floor(Math.random() * this.roadCenters.length)];
     const d = this.roadCenters[Math.floor(Math.random() * this.roadCenters.length)];
